@@ -13,6 +13,6 @@ An Alexa skill to provide students of the University of Lincoln with advice and 
 
 ## License
 
-This project is licensed under the ___ License - see the LICENSE.md file for details.
+This project is **temporarily** licensed under the MIT License - see the [LICENSE.md](https://github.com/laurencejbelliott/UoLAlexaWellbeing/blob/master/LICENSE.md) file for details.
 
 ## Acknowledgements
