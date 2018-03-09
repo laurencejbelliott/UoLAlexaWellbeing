@@ -7,7 +7,7 @@ An Alexa skill to provide students of the University of Lincoln with advice and 
  - **Laurence Elliott** - [laurencejbelliott](https://github.com/laurencejbelliott)
  - **Daniel Turner** - [turnerdaniel](https://github.com/turnerdaniel)
  - **Kostadin Yankov** - [KostadinYankov](https://github.com/KostadinYankov)
- - **Charle-Jay Williams** - []()
+ - **Charle-Jay Williams** - [Einer69er](https://github.com/Einer69er)
  - **Elliot Crawshaw** - [ejcrawshaw](https://github.com/ejcrawshaw)
  - **Bartosz Soja** - []()
 
