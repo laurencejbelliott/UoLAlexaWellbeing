@@ -30,30 +30,69 @@ def stop():
 
 @ask.intent("GetAdvice")
 def getAdvice():
-    session.attributes["curNode"] = 1
-    session.attributes["prevNode"] = 0
-    advice_q = '<speak>Do you want advice on an <emphasis>academic issue</emphasis>, or a <emphasis>personal issue</emphasis>?</speak>'
-    getNodes()
-    return question(advice_q)
+    if session.attributes["curNode"] == 0:
+        session.attributes["curNode"] = 1
+        session.attributes["prevNode"] = 0
+        advice_q = '<speak>Do you want advice on an <emphasis>academic issue</emphasis>, or a <emphasis>personal issue</emphasis>?</speak>'
+        getNodes()
+        return question(advice_q)
+    else:
+        lastNode()
+
+@ask.intent("learnMore")
+def learnMore():
+    if session.attributes["curNode"] == 0:
+        session.attributes["curNode"] = 2
+        session.attributes["prevNode"] = 0
+        more_s = """<speak>The Student Wellbeing Centre, located on the First Floor of the Minerva Building, is here to offer support,
+       advice and guidance with any issues or challenges that you may have during your studies. 
+       Call us on <prosody rate="slow" volume="x-loud">'01522 837080'</prosody>, 
+       or Email us at <prosody rate="slow" volume="x-loud">'studentsupport@lincoln.ac.uk'</prosody>. 
+       Or you can visit us in person with our drop-in service from Monday to Friday during term-time, 
+       between 12pm and 2pm, as well as on Thursday evenings between 5pm and 7pm.</speak>"""
+        getNodes()
+        return statement(more_s)
+    else:
+        lastNode()
+
 
 @ask.intent("PersonalIssue")
 def listPersonalIssues():
-    session.attributes["curNode"] = 2
-    session.attributes["prevNode"] = 1
-    pIssues = "Personal issues go here."
-    getNodes()
-    return statement(pIssues)
+    if session.attributes["curNode"] == 1:
+        session.attributes["curNode"] = 3
+        session.attributes["prevNode"] = 1
+        pIssues = "Personal issues go here."
+        getNodes()
+        return statement(pIssues)
+    else:
+        lastNode()
 
 @ask.intent("AcadIssue")
 def listAcadIssues():
-    session.attributes["curNode"] = 3
-    session.attributes["prevNode"] = 1
-    acadIssues = "Academic issues go here."
-    getNodes()
-    return statement(acadIssues)
+    if session.attributes["curNode"] == 1:
+        session.attributes["curNode"] = 4
+        session.attributes["prevNode"] = 1
+        acadIssues = "Academic issues go here."
+        getNodes()
+        return statement(acadIssues)
+    else:
+        lastNode()
 
 def getNodes():
     print("Current node: " + str(session.attributes.get("curNode")) + ". Previous node: " + str(session.attributes.get("prevNode")) + ".")
+
+#Map node ID numbers to their respective functions and call them if the current node value matches
+def lastNode():
+    if session.attributes["curNode"] == 0:
+        start_skill()
+    elif session.attributes["curNode"] == 1:
+        getAdvice()
+    elif session.attributes["curNode"] == 2:
+        learnMore()
+    elif session.attributes["curNode"] == 3:
+        listPersonalIssues()
+    elif session.attributes["curNode"] == 4:
+        listAcadIssues()
 
 if __name__ == "__main__":
     app.run(debug=True)
