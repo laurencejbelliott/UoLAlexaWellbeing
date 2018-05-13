@@ -21,7 +21,8 @@ def start_skill():
         "writing": False,
         "offencesAndAppeals": False,
         "crisis": False,
-        "disabilityOrCond": False
+        "disabilityOrCond": False,
+        "financeOrLegal": False
          }
     )
     welcome_message = '<speak>Welcome to the Student Wellbeing Centre Alexa skill. How are you feeling today?</speak>'
@@ -51,7 +52,8 @@ def invalidNodeChosen():
          "writing": False,
          "offencesAndAppeals": False,
          "crisis" : False,
-         "disabilityOrCond": False
+         "disabilityOrCond": False,
+         "financeOrLegal": False
          }
     )
     invalidNodeChosenQ = "<speak>I'm sorry, I didn't understand you. Would you like help with an issue?</speak>"
@@ -74,7 +76,8 @@ def feelPositive():
                  "writing": False,
                  "offencesAndAppeals": False,
                  "crisis": False,
-                 "disabilityOrCond": False
+                 "disabilityOrCond": False,
+                 "financeOrLegal": False
                  }
             )
     except:
@@ -90,7 +93,8 @@ def feelPositive():
              "writing": False,
              "offencesAndAppeals": False,
              "crisis": False,
-             "disabilityOrCond": False
+             "disabilityOrCond": False,
+             "financeOrLegal": False
              }
         )
     if session.attributes["nodesVisited"]["HowAreYou"]:
@@ -117,7 +121,8 @@ def feelNegative():
                  "writing": False,
                  "offencesAndAppeals": False,
                  "crisis": False,
-                 "disabilityOrCond": False
+                 "disabilityOrCond": False,
+                 "financeOrLegal": False
                  }
             )
     except:
@@ -133,7 +138,8 @@ def feelNegative():
              "writing": False,
              "offencesAndAppeals": False,
              "crisis": False,
-             "disabilityOrCond": False
+             "disabilityOrCond": False,
+             "financeOrLegal": False
              }
         )
     if session.attributes["nodesVisited"]["HowAreYou"] and not session.attributes["nodesVisited"]["GetAdvice"]:
@@ -178,8 +184,13 @@ def yes():
          and not session.attributes["nodesVisited"]["disabilityOrCond"]):
             return crisisHelp()
         elif (session.attributes["nodesVisited"]["crisis"]
-         and session.attributes["nodesVisited"]["disabilityOrCond"]):
+         and session.attributes["nodesVisited"]["disabilityOrCond"]
+         and not session.attributes["nodesVisited"]["financeOrLegal"]):
             return disabilityOrCondHelp()
+        elif (session.attributes["nodesVisited"]["crisis"]
+         and session.attributes["nodesVisited"]["disabilityOrCond"]
+         and session.attributes["nodesVisited"]["financeOrLegal"]):
+            return financeOrLegalHelp()
     else:
         return invalidNodeChosen()
 
@@ -205,6 +216,10 @@ def no():
         if (session.attributes["nodesVisited"]["crisis"]
             and not session.attributes["nodesVisited"]["disabilityOrCond"]):
             return disabilityOrCond()
+        elif (session.attributes["nodesVisited"]["crisis"]
+              and session.attributes["nodesVisited"]["disabilityOrCond"]
+              and not session.attributes["nodesVisited"]["financeOrLegal"]):
+            return financeOrLegal()
     else:
         return invalidNodeChosen()
 
@@ -255,8 +270,8 @@ def crisisHelp():
 
 def disabilityOrCond():
     session.attributes["nodesVisited"]["disabilityOrCond"] = True
-    mathsQ = "<speak>Do you want help with a disability or medical condition?</speak>"
-    return question(mathsQ)
+    disabilityOrCondQ = "<speak>Do you want help with a disability or medical condition?</speak>"
+    return question(disabilityOrCondQ)
 
 @ask.intent("disabilityOrCond")
 def disabilityOrCondHelp():
@@ -273,6 +288,19 @@ def disabilityOrCondHelp():
     '</prosody>.</speak>'
     return statement(disabilityOrCondS)
 
+def financeOrLegal():
+    session.attributes["nodesVisited"]["financeOrLegal"] = True
+    financeOrLegalQ = "<speak>Do you want help with a financial or legal matter?</speak>"
+    return question(financeOrLegalQ)
+
+@ask.intent("financeOrLegal")
+def financeOrLegalHelp():
+    financeOrLegalS = '<speak>The advice service offers students free and' \
+    'confidential legal and financial advice. Go to the student support centre, ' \
+    'on the ground floor of the Minerva building and ask for the advice service. ' \
+    'Drop-in times are Monday to Friday, 12pm to 2pm. You can also book an appointment ' \
+    'by emailing <emphasis>adviceappointments@lincoln.ac.uk</emphasis>.</speak>'
+    return statement(financeOrLegalS)
 
 ############################
 
