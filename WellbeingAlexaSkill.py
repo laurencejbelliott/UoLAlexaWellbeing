@@ -22,9 +22,27 @@ def start_skill():
         "offencesAndAppeals": False,
         "crisis": False,
         "disabilityOrCond": False,
-        "financeOrLegal": False
+        "financeOrLegal": False,
+        "bullyingHarassment" : False
          }
     )
+
+    # session attribute created to store an ordered array of the node names
+    # for personal issues' nodes
+    session.attributes["personalIssuesOrdered"] = [
+        "crisis",
+        "disabilityOrCond",
+        "financeOrLegal",
+        "bullyingHarassment"
+    ]
+
+    # session attribute created to store an ordered array of the node names
+    # for academic issues' nodes
+    session.attributes["academicIssuesOrdered"] = [
+        "maths",
+        "writing",
+        "offencesAndAppeals"
+    ]
     welcome_message = '<speak>Welcome to the Student Wellbeing Centre Alexa skill. How are you feeling today?</speak>'
     return question(welcome_message)
 
@@ -36,9 +54,66 @@ def session_ended():
 
 @ask.intent("AMAZON.HelpIntent")
 def help():
-    helpQ = '<speak>You can ask me to stop the skill by saying "stop", "cancel", or "exit".</speak>'
-    return question(helpQ)
+    helpS = '<speak>You can ask me to stop the skill at any time by saying "stop", "cancel", or "exit". ' \
+            'You can talk with me turn-by-turn to find your problem and get advice, ' \
+            'or you can tell me your problem, for example: "I\'m being bullied", ' \
+            'and get our advice for the problem directly. Lastly you can launch ' \
+            'the skill with: "Alexa, tell student wellbeing..." and whatever you' \
+            'would like to say to the student wellbeing skill, for example: ' \
+            '"Alexa, tell student wellbeing I need advice on plagiarism".</speak>'
+    return statement(helpS)
 
+# returns true if the all of the personal issue nodes before it have been visited,
+# and the parameter node has not been visited.
+def personalIssueIsNextNode(nodeName):
+    nodeIndex = session.attributes["personalIssuesOrdered"].index(nodeName)
+    for i in range(0,nodeIndex - 1):
+        if not session.attributes["nodesVisited"][session.attributes["personalIssuesOrdered"][i]]:
+            return False
+    if not session.attributes["nodesVisited"][nodeName]:
+        return True
+    else:
+        return False
+
+# returns true if the all of the personal issue nodes before it have been visited,
+# and the parameter node has been visited, and the personal issue nodes after the
+# parameter node have not been visited.
+def personalIssueIsCurrentNode(nodeName):
+    nodeIndex = session.attributes["personalIssuesOrdered"].index(nodeName)
+    for i in range(0,nodeIndex):
+        if not session.attributes["nodesVisited"][session.attributes["personalIssuesOrdered"][i]]:
+            return False
+    if [session.attributes["personalIssuesOrdered"][nodeIndex+1]] != None:
+        for i in range(nodeIndex+1,len(session.attributes["personalIssuesOrdered"])-1):
+            if session.attributes["nodesVisited"][session.attributes["personalIssuesOrdered"][i]]:
+                return False
+    return True
+
+# returns true if the all of the academic issue nodes before it have been visited,
+# and the parameter node has not been visited.
+def academicIssueIsNextNode(nodeName):
+    nodeIndex = session.attributes["academicIssuesOrdered"].index(nodeName)
+    for i in range(0,nodeIndex - 1):
+        if not session.attributes["nodesVisited"][session.attributes["academicIssuesOrdered"][i]]:
+            return False
+    if not session.attributes["nodesVisited"][nodeName]:
+        return True
+    else:
+        return False
+
+# returns true if the all of the academic issue nodes before it have been visited,
+# and the parameter node has been visited, and the academic issue nodes after the
+# parameter node have not been visited.
+def academicIssueIsCurrentNode(nodeName):
+    nodeIndex = session.attributes["academicIssuesOrdered"].index(nodeName)
+    for i in range(0,nodeIndex):
+        if not session.attributes["nodesVisited"][session.attributes["academicIssuesOrdered"][i]]:
+            return False
+    if [session.attributes["academicIssuesOrdered"][nodeIndex+1]] != None:
+        for i in range(nodeIndex+1,len(session.attributes["academicIssuesOrdered"])-1):
+            if session.attributes["nodesVisited"][session.attributes["academicIssuesOrdered"][i]]:
+                return False
+    return True
 
 def invalidNodeChosen():
     session.attributes["nodesVisited"].update(
@@ -51,9 +126,10 @@ def invalidNodeChosen():
          "maths": False,
          "writing": False,
          "offencesAndAppeals": False,
-         "crisis" : False,
+         "crisis": False,
          "disabilityOrCond": False,
-         "financeOrLegal": False
+         "financeOrLegal": False,
+         "bullyingHarassment": False
          }
     )
     invalidNodeChosenQ = "<speak>I'm sorry, I didn't understand you. Would you like help with an issue?</speak>"
@@ -62,12 +138,24 @@ def invalidNodeChosen():
 
 @ask.intent("feelingPositive")
 def feelPositive():
+    session.attributes["personalIssuesOrdered"] = [
+        "crisis",
+        "disabilityOrCond",
+        "financeOrLegal",
+        "bullyingHarassment"
+    ]
+
+    session.attributes["academicIssuesOrdered"] = [
+        "maths",
+        "writing",
+        "offencesAndAppeals"
+    ]
     try:
         if not (session.attributes["nodesVisited"]["GetAdvice"]):
             session.attributes["nodesVisited"] = {}
             session.attributes["nodesVisited"].update(
                 {"HowAreYou": True,
-                 "feelingPositive": True,
+                 "feelingPositive": False,
                  "feelingNegative": False,
                  "AcadIssue": False,
                  "PersonalIssue": False,
@@ -77,14 +165,15 @@ def feelPositive():
                  "offencesAndAppeals": False,
                  "crisis": False,
                  "disabilityOrCond": False,
-                 "financeOrLegal": False
+                 "financeOrLegal": False,
+                 "bullyingHarassment": False
                  }
             )
     except:
         session.attributes["nodesVisited"] = {}
         session.attributes["nodesVisited"].update(
             {"HowAreYou": True,
-             "feelingPositive": True,
+             "feelingPositive": False,
              "feelingNegative": False,
              "AcadIssue": False,
              "PersonalIssue": False,
@@ -94,7 +183,8 @@ def feelPositive():
              "offencesAndAppeals": False,
              "crisis": False,
              "disabilityOrCond": False,
-             "financeOrLegal": False
+             "financeOrLegal": False,
+             "bullyingHarassment": False
              }
         )
     if session.attributes["nodesVisited"]["HowAreYou"]:
@@ -107,13 +197,25 @@ def feelPositive():
 
 @ask.intent("feelingNegative")
 def feelNegative():
+    session.attributes["personalIssuesOrdered"] = [
+        "crisis",
+        "disabilityOrCond",
+        "financeOrLegal",
+        "bullyingHarassment"
+    ]
+
+    session.attributes["academicIssuesOrdered"] = [
+        "maths",
+        "writing",
+        "offencesAndAppeals"
+    ]
     try:
         if (not (session.attributes["nodesVisited"]["GetAdvice"])):
             session.attributes["nodesVisited"] = {}
             session.attributes["nodesVisited"].update(
                 {"HowAreYou": True,
                  "feelingPositive": False,
-                 "feelingNegative": True,
+                 "feelingNegative": False,
                  "AcadIssue": False,
                  "PersonalIssue": False,
                  "GetAdvice": False,
@@ -122,7 +224,8 @@ def feelNegative():
                  "offencesAndAppeals": False,
                  "crisis": False,
                  "disabilityOrCond": False,
-                 "financeOrLegal": False
+                 "financeOrLegal": False,
+                 "bullyingHarassment": False
                  }
             )
     except:
@@ -130,7 +233,7 @@ def feelNegative():
         session.attributes["nodesVisited"].update(
             {"HowAreYou": True,
              "feelingPositive": False,
-             "feelingNegative": True,
+             "feelingNegative": False,
              "AcadIssue": False,
              "PersonalIssue": False,
              "GetAdvice": False,
@@ -139,7 +242,8 @@ def feelNegative():
              "offencesAndAppeals": False,
              "crisis": False,
              "disabilityOrCond": False,
-             "financeOrLegal": False
+             "financeOrLegal": False,
+             "bullyingHarassment": False
              }
         )
     if session.attributes["nodesVisited"]["HowAreYou"] and not session.attributes["nodesVisited"]["GetAdvice"]:
@@ -158,38 +262,29 @@ def yes():
         return getAdvice()
     #If statements for returning advice for academic issues
     elif (session.attributes["nodesVisited"]["AcadIssue"]
-          and (session.attributes["nodesVisited"]["FeelingPositive"]
-               or session.attributes["nodesVisited"]["FeelingNegative"])
+          and (session.attributes["nodesVisited"]["feelingPositive"]
+               or session.attributes["nodesVisited"]["feelingNegative"])
           and session.attributes["nodesVisited"]["GetAdvice"]):
-        if session.attributes["nodesVisited"]["maths"] and not session.attributes["nodesVisited"]["writing"]:
-            return mathsHelp()
-        elif session.attributes["nodesVisited"]["maths"] and session.attributes["nodesVisited"]["feelingNegative"] and not session.attributes["nodesVisited"]["writing"]:
-            return mathsHelp()
-        elif session.attributes["nodesVisited"]["maths"] and session.attributes["nodesVisited"]["feelingPositive"] and not session.attributes["nodesVisited"]["writing"]:
-            return mathsHelp()
-        elif (session.attributes["nodesVisited"]["writing"] and session.attributes["nodesVisited"]["maths"]
-              and (session.attributes["nodesVisited"]["feelingPositive"] or session.attributes["nodesVisited"]["feelingNegative"])
-              and not session.attributes["nodesVisited"]["offencesAndAppeals"]):
-            return writingHelp()
-        elif (session.attributes["nodesVisited"]["maths"]
-              and session.attributes["nodesVisited"]["writing"]
-              and session.attributes["nodesVisited"]["offencesAndAppeals"]):
+        # the first if statement evaluates whether the last personal issue node
+        # has been visited
+        if session.attributes["nodesVisited"]["offencesAndAppeals"]:
             return offencesAndAppealsHelp()
+        elif academicIssueIsCurrentNode("maths"):
+            return mathsHelp()
+        elif academicIssueIsCurrentNode("writing"):
+            return writingHelp()
     #If statements for returning advice for personal issues
     elif (session.attributes["nodesVisited"]["PersonalIssue"]
           and (session.attributes["nodesVisited"]["feelingPositive"]
                or session.attributes["nodesVisited"]["feelingNegative"])
           and session.attributes["nodesVisited"]["GetAdvice"]):
-        if (session.attributes["nodesVisited"]["crisis"]
-         and not session.attributes["nodesVisited"]["disabilityOrCond"]):
+        if session.attributes["nodesVisited"]["bullyingHarassment"]:
+            return bullyingHarassmentHelp()
+        elif personalIssueIsCurrentNode("crisis"):
             return crisisHelp()
-        elif (session.attributes["nodesVisited"]["crisis"]
-         and session.attributes["nodesVisited"]["disabilityOrCond"]
-         and not session.attributes["nodesVisited"]["financeOrLegal"]):
+        elif personalIssueIsCurrentNode("disabilityOrCond"):
             return disabilityOrCondHelp()
-        elif (session.attributes["nodesVisited"]["crisis"]
-         and session.attributes["nodesVisited"]["disabilityOrCond"]
-         and session.attributes["nodesVisited"]["financeOrLegal"]):
+        elif personalIssueIsCurrentNode("financeOrLegal"):
             return financeOrLegalHelp()
     else:
         return invalidNodeChosen()
@@ -205,21 +300,18 @@ def no():
         return goodbye()
     #if statements for moving down the list of academic issues
     elif session.attributes["nodesVisited"]["AcadIssue"]:
-        if session.attributes["nodesVisited"]["maths"] and not session.attributes["nodesVisited"]["writing"]:
+        if academicIssueIsNextNode("writing"):
             return writing()
-        elif (session.attributes["nodesVisited"]["maths"]
-              and session.attributes["nodesVisited"]["writing"]
-              and not session.attributes["nodesVisited"]["offencesAndAppeals"]):
+        elif academicIssueIsNextNode("offencesAndAppeals"):
             return offencesAndAppeals()
-    #if statements for moving down the list of academic isues
+    #if statements for moving down the list of personal issues
     elif session.attributes["nodesVisited"]["PersonalIssue"]:
-        if (session.attributes["nodesVisited"]["crisis"]
-            and not session.attributes["nodesVisited"]["disabilityOrCond"]):
+        if personalIssueIsNextNode("disabilityOrCond"):
             return disabilityOrCond()
-        elif (session.attributes["nodesVisited"]["crisis"]
-              and session.attributes["nodesVisited"]["disabilityOrCond"]
-              and not session.attributes["nodesVisited"]["financeOrLegal"]):
+        elif personalIssueIsNextNode("financeOrLegal"):
             return financeOrLegal()
+        elif personalIssueIsNextNode("bullyingHarassment"):
+            return bullyingHarassment()
     else:
         return invalidNodeChosen()
 
@@ -231,6 +323,35 @@ def emergency():
 
 @ask.intent("GetAdvice")
 def getAdvice():
+    session.attributes["personalIssuesOrdered"] = [
+        "crisis",
+        "disabilityOrCond",
+        "financeOrLegal",
+        "bullyingHarassment"
+    ]
+
+    session.attributes["academicIssuesOrdered"] = [
+        "maths",
+        "writing",
+        "offencesAndAppeals"
+    ]
+    session.attributes["nodesVisited"] = {}
+    session.attributes["nodesVisited"].update(
+        {"HowAreYou": True,
+         "feelingPositive": False,
+         "feelingNegative": True,
+         "AcadIssue": False,
+         "PersonalIssue": False,
+         "GetAdvice": False,
+         "maths": False,
+         "writing": False,
+         "offencesAndAppeals": False,
+         "crisis": False,
+         "disabilityOrCond": False,
+         "financeOrLegal": False,
+         "bullyingHarassment": False
+         }
+    )
     if session.attributes["nodesVisited"]["feelingPositive"] or session.attributes["nodesVisited"]["feelingNegative"]:
         session.attributes["nodesVisited"]["GetAdvice"] = True
         adviceQ = '<speak>Is your problem more of an <emphasis>academic</emphasis> issue, or a <emphasis>personal</emphasis> issue?</speak>'
@@ -241,6 +362,35 @@ def getAdvice():
 
 @ask.intent("PersonalIssue")
 def listPersonalIssues():
+    session.attributes["nodesVisited"] = {}
+    session.attributes["nodesVisited"].update(
+        {"HowAreYou": True,
+         "feelingPositive": False,
+         "feelingNegative": True,
+         "AcadIssue": False,
+         "PersonalIssue": True,
+         "GetAdvice": True,
+         "maths": False,
+         "writing": False,
+         "offencesAndAppeals": False,
+         "crisis": False,
+         "disabilityOrCond": False,
+         "financeOrLegal": False,
+         "bullyingHarassment": False
+         }
+    )
+    session.attributes["personalIssuesOrdered"] = [
+        "crisis",
+        "disabilityOrCond",
+        "financeOrLegal",
+        "bullyingHarassment"
+    ]
+
+    session.attributes["academicIssuesOrdered"] = [
+        "maths",
+        "writing",
+        "offencesAndAppeals"
+    ]
     if session.attributes["nodesVisited"]["GetAdvice"]:
         session.attributes["nodesVisited"]["PersonalIssue"] = True
         return crisis()
@@ -302,11 +452,53 @@ def financeOrLegalHelp():
     'by emailing <emphasis>adviceappointments@lincoln.ac.uk</emphasis>.</speak>'
     return statement(financeOrLegalS)
 
+
+def bullyingHarassment():
+    session.attributes["nodesVisited"]["bullyingHarassment"] = True
+    bullyingHarassmentQ = "Do you think you might be a victim of bullying or harassment?"
+    return question(bullyingHarassmentQ)
+
+@ask.intent("bullyingHarassment")
+def bullyingHarassmentHelp():
+    bullyingHarassmentS = "<speak>For help with bullying or harassment, call the student support centre on" \
+    " <prosody rate=\"slow\" volume=\"x-loud\">01522 837080</prosody> or send us an email to " \
+    "<prosody rate=\"slow\" volume=\"x-loud\">studentsupport@lincoln.ac.uk</prosody>.</speak>"
+    return statement(bullyingHarassmentS)
 ############################
 
 
 @ask.intent("AcadIssue")
 def listAcadIssues():
+    session.attributes["nodesVisited"] = {}
+    session.attributes["nodesVisited"].update(
+        {"HowAreYou": True,
+         "feelingPositive": False,
+         "feelingNegative": True,
+         "AcadIssue": True,
+         "PersonalIssue": False,
+         "GetAdvice": True,
+         "maths": False,
+         "writing": False,
+         "offencesAndAppeals": False,
+         "crisis": False,
+         "disabilityOrCond": False,
+         "financeOrLegal": False,
+         "bullyingHarassment": False
+         }
+    )
+
+    session.attributes["personalIssuesOrdered"] = [
+        "crisis",
+        "disabilityOrCond",
+        "financeOrLegal",
+        "bullyingHarassment"
+    ]
+
+    session.attributes["academicIssuesOrdered"] = [
+        "maths",
+        "writing",
+        "offencesAndAppeals"
+    ]
     if session.attributes["nodesVisited"]["GetAdvice"]:
         session.attributes["nodesVisited"]["AcadIssue"] = True
         return maths()
@@ -366,6 +558,8 @@ def offencesAndAppealsHelp():
     "or send them an email " \
     "to <prosody rate=\"slow\" volume=\"x-loud\">'advice@lincoln<say-as interpret-as=\"spell-out\">su</say-as>.com'</prosody>.</speak>"
     return statement(offencesAndAppealsHelpS)
+
+
 ###########################
 
 
